@@ -1,4 +1,5 @@
 {
+  "start": "react-scripts --openssl-legacy-provider start",
   "name": "complete-social-network-prep",
   "version": "0.1.0",
   "private": true,
