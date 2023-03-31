@@ -1,5 +1,10 @@
+require("dotenv").config()
+
 const express = require('express');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose')
+
+const MONGODB_URI = process.env.MONGO_DB_URI;
 
 const app = express();
 const PORT = 8080;
@@ -15,8 +20,15 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use('/feed' , feedRoutes) // now all feedRoutes routes will have /feed at the start
+app.use('/feed', feedRoutes) // now all feedRoutes routes will have /feed at the start
 
-app.listen(PORT, () => {
-    console.log(`Using Port ${PORT}`)
-});
+mongoose
+    .connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(result => {
+        app.listen(PORT, () => {
+            console.log(`Using Port ${PORT}`)
+        });
+    })
+    .catch(err => {
+        console.log(err);
+    });

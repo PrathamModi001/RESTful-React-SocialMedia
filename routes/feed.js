@@ -5,8 +5,10 @@ const router = express.Router();
 
 const feedController = require('../controllers/feed')
 
-// GET and POST /feed/posts
+// GET /feed/posts
 router.get('/posts', feedController.getPosts)
+
+// POST /feed/posts
 router.post('/posts', [
     body('title', 'Please enter a valid title')
         .isString()
