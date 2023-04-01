@@ -23,10 +23,9 @@ exports.postPosts = (req, res, next) => {
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-        return res.status(422).json({
-            message: 'Input Validation Failed.',
-            errors: errors.array()
-        })
+        const error = new Error('Input Validation Failed.');
+        error.statusCode = 422;
+        throw error;
     }
 
     const newPost = new Post({
@@ -44,5 +43,10 @@ exports.postPosts = (req, res, next) => {
                 post: result
             })
         })
-        .catch(err => console.log(err))
+        .catch(err => {
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err)
+        })
 }
