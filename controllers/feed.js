@@ -29,9 +29,17 @@ exports.postPosts = (req, res, next) => {
         throw error;
     }
 
+    if(!req.file){ // if image does not exist
+        const error = new Error("Not an Image");
+        error.statusCode = 422;
+        throw error;
+    } 
+
+    const imageUrl = req.file.path
+    
     const newPost = new Post({
         title: title,
-        imageUrl: '/data/images/scenery.png',
+        imageUrl: imageUrl,
         content: content,
         creator: { name: 'Pratham Modi' }
     })

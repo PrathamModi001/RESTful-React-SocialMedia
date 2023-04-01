@@ -4,13 +4,42 @@ const path = require('path')
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose')
+const multer = require('multer')
 
 const MONGODB_URI = process.env.MONGO_DB_URI;
 
 const app = express();
 const PORT = 8080;
 
-app.use(bodyParser.json()); // application/json
+//multer configs
+const fileStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, './data/images');
+    },
+    filename: (req, file, cb) => {
+        cb(null, new Date().toISOString() + '-' + file.originalname);
+    }
+});
+
+const fileFilter = (req, file, cb) => {
+    if (
+        file.mimetype === 'image/png' ||
+        file.mimetype === 'image/jpg' ||
+        file.mimetype === 'image/webp' ||
+        file.mimetype === 'image/jpeg' 
+    ) {
+        cb(null, true);
+    } else {
+        cb(null, false);
+    }
+};
+
+app.use(bodyParser.json()); // application/json being served because RESTful
+// multer middleware
+app.use(
+    multer({ storage: fileStorage, fileFilter: fileFilter }).single('image')
+);
+// static serving of images
 app.use('/data/images', express.static(path.join(__dirname, '/data/images')));
 
 const feedRoutes = require('./routes/feed')
@@ -24,7 +53,7 @@ app.use((req, res, next) => {
 
 app.use('/feed', feedRoutes) // now all feedRoutes routes will have /feed at the start
 
-app.use((error,req,res,next) => {
+app.use((error, req, res, next) => {
     console.log(error)
     // doing this to throw the correct error;
     const status = error.statusCode || 500; // we are setting this code for every error to throw
