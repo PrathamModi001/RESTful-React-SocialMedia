@@ -6,11 +6,22 @@ const Post = require('../models/post');
 const fileHelper = require('../util/file')
 
 exports.getPosts = (req, res, next) => {
+    const currentPage = req.query.page || 1;
+    const perPage = 2;
+    let totalItems;
     Post.find()
+        .countDocuments()
+        .then(count => {
+            totalItems = count;
+            return Post.find()
+                .skip((currentPage - 1) * perPage)
+                .limit(perPage)
+        })
         .then(posts => {
             res.status(200).json({
                 message: 'Posts Fetched Successfully',
-                posts: posts
+                posts: posts,
+                totalItems: totalItems
             })
         })
         .catch(err => {
@@ -146,7 +157,7 @@ exports.deletePost = (req, res, next) => {
 
     Post.findById(postId)
         .then(post => {
-            if(!post){
+            if (!post) {
                 const error = new Error('Post Not Found')
                 error.statusCode = 500
                 throw error;
