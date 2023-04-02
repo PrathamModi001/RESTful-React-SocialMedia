@@ -112,16 +112,16 @@ exports.updatePost = (req, res, next) => {
 
     Post.findById(postId)
         .then(post => {
-            if(!post){
+            if (!post) {
                 const error = new Error('Post Not Found')
                 error.statusCode = 404;
                 throw error;
             }
             // deleting old image if we select a new one
-            if(imageUrl !== post.imageUrl){
+            if (imageUrl !== post.imageUrl) {
                 fileHelper.deleteFile(post.imageUrl);
             }
-            
+
             post.title = title;
             post.content = content;
             post.imageUrl = imageUrl
@@ -130,6 +130,33 @@ exports.updatePost = (req, res, next) => {
         .then(result => {
             res.status(200).json({
                 message: 'Post Updated Successfully!',
+                post: result
+            })
+        })
+        .catch(err => {
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err)
+        })
+}
+
+exports.deletePost = (req, res, next) => {
+    const postId = req.params.postId;
+
+    Post.findById(postId)
+        .then(post => {
+            if(!post){
+                const error = new Error('Post Not Found')
+                error.statusCode = 500
+                throw error;
+            }
+            fileHelper.deleteFile(post.imageUrl);
+            return Post.findByIdAndRemove(postId)
+        })
+        .then(result => {
+            res.status(200).json({
+                message: 'Post Deleted Successfully',
                 post: result
             })
         })
