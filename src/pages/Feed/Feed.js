@@ -37,6 +37,7 @@ class Feed extends Component {
     this.loadPosts();
   }
 
+  // loading ALL posts 
   loadPosts = direction => {
     if (direction) {
       this.setState({ postsLoading: true, posts: [] });
@@ -59,7 +60,12 @@ class Feed extends Component {
       })
       .then(resData => {
         this.setState({
-          posts: resData.posts,
+          posts: resData.posts.map(post => {
+            return{
+              ...post,
+              imagePath: post.imageUrl
+            };
+          }),
           totalPosts: resData.totalItems,
           postsLoading: false
         });
@@ -115,7 +121,8 @@ class Feed extends Component {
     let url = 'http://localhost:8080/feed/posts';
     let method = 'POST';
     if (this.state.editPost) {
-      url = 'URL';
+      url = 'http://localhost:8080/feed/post/' + this.state.editPost._id;
+      method = 'PUT'
     }
 
     fetch(url, {

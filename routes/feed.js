@@ -25,4 +25,18 @@ router.post('/posts', [
 // GET /feed/post/:postId
 router.get('/post/:postId', feedController.getSinglePost)
 
+// GET /feed/update
+router.put('/post/:postId' ,  [
+    body('title', 'Please enter a valid title')
+        .isString()
+        .isLength({ min: 5 })
+        .trim(),
+
+    body('content', 'Please enter a valid content field')
+        .isString()
+        .isLength({ min: 5 })
+        .trim(),
+
+], feedController.updatePost)
+
 module.exports = router;
