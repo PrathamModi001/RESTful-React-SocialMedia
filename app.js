@@ -43,6 +43,7 @@ app.use(
 app.use('/data/images', express.static(path.join(__dirname, '/data/images')));
 
 const feedRoutes = require('./routes/feed')
+const authRoutes = require('./routes/auth')
 
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -52,6 +53,7 @@ app.use((req, res, next) => {
 });
 
 app.use('/feed', feedRoutes) // now all feedRoutes routes will have /feed at the start
+app.use('/auth', authRoutes) 
 
 app.use((error, req, res, next) => {
     console.log(error)
