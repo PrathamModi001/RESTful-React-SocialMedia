@@ -59,9 +59,11 @@ app.use((error, req, res, next) => {
     console.log(error)
     // doing this to throw the correct error;
     const status = error.statusCode || 500; // we are setting this code for every error to throw
+    const data = error.data;
     const message = error.message // inbuilt, shows what the error is;
     res.status(status).json({
-        message: message
+        message: message,
+        data: data
     })
 })
 

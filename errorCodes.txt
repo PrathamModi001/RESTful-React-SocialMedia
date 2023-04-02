@@ -1,5 +1,6 @@
 200: SUCCESS
 201: Successful Resource Creation
 
+401: UnAuthorized
 404: Not Found Error
 422: Validation Failed
