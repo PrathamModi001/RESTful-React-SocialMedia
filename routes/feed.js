@@ -10,36 +10,38 @@ const isAuth = require('../middleware/isAuth')
 router.get('/posts', isAuth, feedController.getPosts)
 
 // POST /feed/posts
-router.post('/posts', [
-    body('title', 'Please enter a valid title')
-        .isString()
-        .isLength({ min: 5 })
-        .trim(),
+router.post('/posts', isAuth,
+    [
+        body('title', 'Please enter a valid title')
+            .isString()
+            .isLength({ min: 5 })
+            .trim(),
 
-    body('content', 'Please enter a valid content field')
-        .isString()
-        .isLength({ min: 5 })
-        .trim(),
+        body('content', 'Please enter a valid content field')
+            .isString()
+            .isLength({ min: 5 })
+            .trim(),
 
-], feedController.postPosts)
+    ], feedController.postPosts)
 
 // GET /feed/post/:postId
-router.get('/post/:postId', feedController.getSinglePost)
+router.get('/post/:postId', isAuth, feedController.getSinglePost)
 
 // GET /feed/update
-router.put('/post/:postId' ,  [
-    body('title', 'Please enter a valid title')
-        .isString()
-        .isLength({ min: 5 })
-        .trim(),
+router.put('/post/:postId', isAuth,
+    [
+        body('title', 'Please enter a valid title')
+            .isString()
+            .isLength({ min: 5 })
+            .trim(),
 
-    body('content', 'Please enter a valid content field')
-        .isString()
-        .isLength({ min: 5 })
-        .trim(),
+        body('content', 'Please enter a valid content field')
+            .isString()
+            .isLength({ min: 5 })
+            .trim(),
 
-], feedController.updatePost)
+    ], feedController.updatePost)
 
-router.delete('/post/:postId' , feedController.deletePost)
+router.delete('/post/:postId', isAuth, feedController.deletePost)
 
 module.exports = router;
