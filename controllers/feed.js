@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path')
 
 const Post = require('../models/post');
+const User = require('../models/user')
 const fileHelper = require('../util/file')
 
 exports.getPosts = (req, res, next) => {
@@ -32,10 +33,7 @@ exports.getPosts = (req, res, next) => {
         })
 }
 
-exports.postPosts = (req, res, next) => {
-    const title = req.body.title;
-    const content = req.body.content;
-
+exports.postPosts = async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         const error = new Error('Input Validation Failed.');
@@ -49,21 +47,44 @@ exports.postPosts = (req, res, next) => {
         throw error;
     }
 
+    const title = req.body.title;
+    const content = req.body.content;
+    let creator;
     const imageUrl = req.file.path
 
     const newPost = new Post({
         title: title,
         imageUrl: imageUrl,
         content: content,
-        creator: { name: 'Pratham Modi' }
+        creator: req.userId
     })
+
+    // // CHANGES:
+    // newPost = await newPost.save();
+    // creator = await User.findOneAndUpdate({_id: req.userId}, {$push: {posts: newPost._id}}, {new: true});
+
+    // return res.status(201).json({
+    //     message: 'Post creation was successful!',
+    //     post: newPost,
+    //     creator: { _id: creator._id, name: creator.name }
+    // })
+
+
 
     newPost.save()
         .then(result => {
-            console.log(result);
+            return User.findById(req.userId);
+        })
+        .then(userFound => {
+            creator = userFound;
+            userFound.posts.push(newPost);
+            return userFound.save();
+        })
+        .then(result => {
             res.status(201).json({
                 message: 'Post creation was successful!',
-                post: result
+                post: newPost,
+                creator: { _id: creator._id, name: creator.name }
             })
         })
         .catch(err => {
@@ -128,6 +149,11 @@ exports.updatePost = (req, res, next) => {
                 error.statusCode = 404;
                 throw error;
             }
+            if (post.creator.toString !== req.userId) {
+                const error = new Error('You are NOT the creator of this post!')
+                error.statusCode = 403;
+                throw error;
+            }
             // deleting old image if we select a new one
             if (imageUrl !== post.imageUrl) {
                 fileHelper.deleteFile(post.imageUrl);
@@ -162,14 +188,25 @@ exports.deletePost = (req, res, next) => {
                 error.statusCode = 500
                 throw error;
             }
+            if (post.creator.toString() !== req.userId) {
+                const error = new Error('You are NOT the creator of this post!')
+                error.statusCode = 403;
+                throw error;
+            }
             fileHelper.deleteFile(post.imageUrl);
             return Post.findByIdAndRemove(postId)
         })
         .then(result => {
+            return User.findById(req.userId)
+        })
+        .then(userFound => {
+            userFound.posts.pull(postId)
+            return userFound.save();
+        })
+        .then(result => {
             res.status(200).json({
                 message: 'Post Deleted Successfully',
-                post: result
-            })
+            }) 
         })
         .catch(err => {
             if (!err.statusCode) {

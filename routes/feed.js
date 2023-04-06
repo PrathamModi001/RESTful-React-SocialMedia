@@ -25,10 +25,10 @@ router.post('/posts', isAuth,
     ], feedController.postPosts)
 
 // GET /feed/post/:postId
-router.get('/post/:postId', isAuth, feedController.getSinglePost)
+router.get('/posts/:postId', isAuth, feedController.getSinglePost)
 
 // GET /feed/update
-router.put('/post/:postId', isAuth,
+router.put('/posts/:postId', isAuth,
     [
         body('title', 'Please enter a valid title')
             .isString()
