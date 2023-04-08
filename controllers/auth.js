@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const User = require('../models/user');
+const user = require('../models/user');
 
 const saltRounds = 12;
 
@@ -68,6 +69,52 @@ exports.postLogin = (req, res, next) => {
                 message: 'Successfully Signed In!',
                 token: token,
                 userId: loadedUser._id.toString()
+            })
+        })
+        .catch(err => {
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        });
+}
+
+exports.getStatus = (req, res, next) => {
+    User.findById(req.userId)
+        .then(userFound => {
+            if (!userFound) {
+                const error = new Error("User not found!")
+                error.statusCode = 404;
+                throw error;
+            }
+            res.status(200).json({
+                status: userFound.status,
+
+            })
+        })
+        .catch(err => {
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        });
+}
+
+exports.updateUserStatus = (req, res, next) => {
+    const newStatus = req.body.status;
+    User.findById(req.userId)
+        .then(userFound => {
+            if (!userFound) {
+                const error = new Error("User not found!")
+                error.statusCode = 404;
+                throw error;
+            }
+            userFound.status = newStatus;
+            return userFound.save();
+        })
+        .then(result => {
+            res.status(200).json({
+                message: "User Status Updated!",
             })
         })
         .catch(err => {

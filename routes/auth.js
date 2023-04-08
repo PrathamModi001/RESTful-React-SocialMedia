@@ -33,10 +33,18 @@ router.put(
             .not()
             .isEmpty()
     ],
-    
+
     authController.signup
 );
 
-router.post('/login' , authController.postLogin)
+router.post('/login', authController.postLogin)
+
+router.get('/status', isAuth, authController.getStatus);
+
+router.patch('/status', isAuth, [
+    body('status')
+        .trim()
+        .not().isEmpty()
+], authController.updateUserStatus)
 
 module.exports = router;
