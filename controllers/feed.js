@@ -6,31 +6,26 @@ const Post = require('../models/post');
 const User = require('../models/user')
 const fileHelper = require('../util/file')
 
-exports.getPosts = (req, res, next) => {
+exports.getPosts = async (req, res, next) => {
     const currentPage = req.query.page || 1;
     const perPage = 2;
     let totalItems;
-    Post.find()
-        .countDocuments()
-        .then(count => {
-            totalItems = count;
-            return Post.find()
-                .skip((currentPage - 1) * perPage)
-                .limit(perPage)
+    try {
+        totalItems = await Post.find().countDocuments()
+        const posts = await Post.find().skip((currentPage - 1) * perPage).limit(perPage)
+
+        res.status(200).json({
+            message: 'Posts Fetched Successfully',
+            posts: posts,
+            totalItems: totalItems
         })
-        .then(posts => {
-            res.status(200).json({
-                message: 'Posts Fetched Successfully',
-                posts: posts,
-                totalItems: totalItems
-            })
-        })
-        .catch(err => {
-            if (!err.statusCode) {
-                err.statusCode = 500;
-            }
-            next(err)
-        })
+    }
+    catch (err) {
+        if (!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err)
+    }
 }
 
 exports.postPosts = async (req, res, next) => {
