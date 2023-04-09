@@ -4,11 +4,20 @@ const path = require('path')
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose')
-const multer = require('multer')
+const multer = require('multer');
+const cors = require('cors');
 
 const MONGODB_URI = process.env.MONGO_DB_URI;
 
 const app = express();
+const server = require('http').createServer(app);
+const io = require('socket.io')(server, {
+    cors: {
+        origin: '*',
+        methods: ['GET', 'POST']
+    }
+});
+app.use(cors())
 const PORT = 8080;
 
 //multer configs
@@ -26,7 +35,7 @@ const fileFilter = (req, file, cb) => {
         file.mimetype === 'image/png' ||
         file.mimetype === 'image/jpg' ||
         file.mimetype === 'image/webp' ||
-        file.mimetype === 'image/jpeg' 
+        file.mimetype === 'image/jpeg'
     ) {
         cb(null, true);
     } else {
@@ -53,7 +62,7 @@ app.use((req, res, next) => {
 });
 
 app.use('/feed', feedRoutes) // now all feedRoutes routes will have /feed at the start
-app.use('/auth', authRoutes) 
+app.use('/auth', authRoutes)
 
 app.use((error, req, res, next) => {
     console.log(error)
@@ -70,9 +79,12 @@ app.use((error, req, res, next) => {
 mongoose
     .connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(result => {
-        app.listen(PORT, () => {
+        server.listen(PORT, () => {
             console.log(`Using Port ${PORT}`)
         });
+        io.on('connection', socket => {
+            console.log('Socket Connected!')
+        })
     })
     .catch(err => {
         console.log(err);
