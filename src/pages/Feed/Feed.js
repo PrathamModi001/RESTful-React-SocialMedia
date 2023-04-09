@@ -44,6 +44,23 @@ class Feed extends Component {
     openSocket('http://localhost:8080');
   }
 
+  addPost = (post) => {
+    this.setState(prevState => {
+      const updatedPosts = [...prevState.posts];
+      if (prevState.postPage === 1) {
+        if (prevState.posts.length >= 2) {
+          updatedPosts.pop();
+        }
+        updatedPosts.unshift(post);
+      }
+      return {
+        posts: updatedPosts,
+        totalPosts: prevState.totalPosts + 1
+      };
+    });
+
+  }
+
   // loading ALL posts 
   loadPosts = direction => {
     if (direction) {
@@ -86,7 +103,7 @@ class Feed extends Component {
 
   statusUpdateHandler = event => {
     event.preventDefault();
-    fetch('http://localhost:8080/auth/status' , {
+    fetch('http://localhost:8080/auth/status', {
       method: 'PATCH',
       headers: {
         Authorization: 'Bearer ' + this.props.token, // convention to have this kinda thing

@@ -11,12 +11,7 @@ const MONGODB_URI = process.env.MONGO_DB_URI;
 
 const app = express();
 const server = require('http').createServer(app);
-const io = require('socket.io')(server, {
-    cors: {
-        origin: '*',
-        methods: ['GET', 'POST']
-    }
-});
+const io = require('./socket').init(server);
 app.use(cors())
 const PORT = 8080;
 
