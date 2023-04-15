@@ -14,7 +14,7 @@ class SinglePost extends Component {
 
   componentDidMount() {
     const postId = this.props.match.params.postId;
-    fetch('http://localhost:8080/feed/posts/' + postId, {
+    fetch('https://modi-chats-backend.onrender.com/feed/posts/' + postId, {
       headers: {
         Authorization: 'Bearer ' + this.props.token // convention to have this kinda thing 
       }
@@ -29,7 +29,7 @@ class SinglePost extends Component {
         this.setState({
           title: resData.post.title,
           author: resData.post.creator.name,
-          image: 'http://localhost:8080/' + resData.post.imageUrl,
+          image: 'https://modi-chats-backend.onrender.com/' + resData.post.imageUrl,
           date: new Date(resData.post.createdAt).toLocaleDateString('en-US'),
           content: resData.post.content
         });
