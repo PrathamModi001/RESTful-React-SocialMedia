@@ -13,7 +13,7 @@ const app = express();
 const server = require('http').createServer(app);
 const io = require('./socket').init(server);
 app.use(cors())
-const PORT = 8080;
+const PORT = 8080 || process.env.PORT;
 
 //multer configs
 const fileStorage = multer.diskStorage({
