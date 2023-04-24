@@ -13,7 +13,7 @@ exports.getPosts = async (req, res, next) => {
         const perPage = 2;
         let totalItems;
         totalItems = await Post.find().countDocuments()
-        const posts = await Post.find().populate('creator').skip((currentPage - 1) * perPage).limit(perPage)
+        const posts = await Post.find().populate('creator').skip((currentPage - 1) * perPage).limit(perPage).sort({ _id: -1 })
 
         return res.status(200).json({
             message: 'Posts Fetched Successfully',
